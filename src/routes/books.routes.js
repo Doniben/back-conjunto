@@ -5,6 +5,7 @@ import * as booksCtrl from "../controllers/books.controller";
 import { authJwt } from "../middlewares";
 
 router.get("/", booksCtrl.getBooks);
+router.post("/titulo", booksCtrl.getBookBytitle);
 
 router.get("/:bookId", booksCtrl.getBookById);
 
