@@ -32,6 +32,14 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const getUsers = async (req, res) => {};
+export const getUsers = async (req, res) => {
+  try {
+    const usuarios = await User.find();
+    return res.status(200).json({ usuarios });
+  } catch (error) {
+    console.error(error);
+    return res.status(404).json({ error });
+  }
+};
 
 export const getUser = async (req, res) => {};
