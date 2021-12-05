@@ -1,18 +1,28 @@
 import Book from "../models/Book";
 
 export const createBook = async (req, res) => {
-  const { idbn, title, subtitle, autor, category, publicationDate, editor, description, image, } = req.body;
+  const {
+    idbn,
+    title,
+    subtitle,
+    autor,
+    category,
+    publicationDate,
+    editor,
+    description,
+    image,
+  } = req.body;
 
   try {
     const newBook = new Book({
-      idbn, 
-      title, 
-      subtitle, 
-      autor, 
-      category, 
-      publicationDate, 
-      editor, 
-      description, 
+      idbn,
+      title,
+      subtitle,
+      autor,
+      category,
+      publicationDate,
+      editor,
+      description,
       image,
     });
 
@@ -29,6 +39,13 @@ export const getBookById = async (req, res) => {
   const { bookId } = req.params;
 
   const book = await Book.findById(bookId);
+  res.status(200).json(book);
+};
+
+export const getBookBytitle = async (req, res) => {
+  const { title } = req.body;
+  console.log(req.body);
+  const book = await Book.find({ title: title });
   res.status(200).json(book);
 };
 
