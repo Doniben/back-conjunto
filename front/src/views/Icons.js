@@ -53,7 +53,7 @@ function Icons() {
   //funtion search and set values resultadosExternos
   const busquedaExterna = async () => {
     if (texto != "") {
-      const url_Int = "http://localhost:4000/api/books/titulo";
+      const url_Int = "https://api-books-tp.herokuapp.com/api/books/titulo";
       const body = { title: texto };
 
       try {
