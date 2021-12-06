@@ -1,26 +1,9 @@
-/*!
-
-=========================================================
-* Now UI Dashboard React - v1.5.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/now-ui-dashboard-react/blob/main/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import Dashboard from "views/Dashboard.js";
 import Notifications from "views/Notifications.js";
-import Icons from "views/Icons.js";
+import BusquedaLibros from "views/BusquedaLibros.js";
 import Typography from "views/Typography.js";
 import TableList from "views/TableList.js";
-import Maps from "views/Maps.js";
+import InternalBooks from "views/InternalBooks.js";
 import Upgrade from "views/Upgrade.js";
 import UserPage from "views/UserPage.js";
 
@@ -33,17 +16,17 @@ var dashRoutes = [
     layout: "/admin",
   },
   {
-    path: "/icons",
-    name: "Icons",
+    path: "/BusquedaLibros",
+    name: "Buscador de libros",
     icon: "design_image",
-    component: Icons,
+    component: BusquedaLibros,
     layout: "/admin",
   },
   {
-    path: "/maps",
-    name: "Maps",
+    path: "/InternalBooks",
+    name: "Libros internos",
     icon: "location_map-big",
-    component: Maps,
+    component: InternalBooks,
     layout: "/admin",
   },
   {
