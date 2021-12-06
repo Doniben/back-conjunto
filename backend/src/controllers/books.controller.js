@@ -76,11 +76,11 @@ export const deleteBookById = async (req, res) => {
 
 export const deleteBookByList = async (req, res) => {
   const { booksIds } = req.body;
-  console.log(booksIds)
+  console.log(booksIds);
 
-  booksIds.map( async (x)=>{
+  booksIds.map(async (x) => {
     await Book.findOneAndDelete(x);
-  })
+  });
 
   // code 200 is ok too
   res.status(204).json();

@@ -2,12 +2,12 @@ import { Schema, model } from "mongoose";
 
 const bookSchema = new Schema(
   {
-    idbn: String,
+    isbn: String,
     title: String,
-    subtitle: String,
+    subtitle: Array,
     autor: Array,
     category: Array,
-    publicationDate: Number,
+    publicationDate: Array,
     editor: Array,
     description: String,
     image: String,

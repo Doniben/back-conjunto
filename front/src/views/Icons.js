@@ -38,6 +38,8 @@ import {
   Form,
 } from "reactstrap";
 
+import { ToastContainer, toast } from "react-toastify";
+
 // core components
 import PanelHeader from "components/PanelHeader/PanelHeader.js";
 import axios from "axios";
@@ -47,6 +49,8 @@ function Icons() {
   const [resultadosExternos, setResultadosExternos] = useState([]);
   const [resultadosInternos, setResultadosInternos] = useState([]);
   const [texto, setTexto] = useState("");
+
+  //funtion search and set values resultadosExternos
   const busquedaExterna = async () => {
     if (texto != "") {
       const url_Int = "http://localhost:4000/api/books/titulo";
@@ -82,11 +86,12 @@ function Icons() {
     }
   };
 
-  //handler value input text
+  //handler value input text of input search
   const handleInpuntChange = ({ target }) => {
     setTexto(target.value);
   };
 
+  //hooks for control fields filters
   const [isOpenAutor, setIsOpenAutor] = useState(false);
   const openAutor = () => setIsOpenAutor(!isOpenAutor);
 
@@ -109,9 +114,12 @@ function Icons() {
     titulo();
   };
 
+  //hooks for control modal component
   const [modal, setModal] = useState(false);
   const [infoModal, setInfomodal] = useState({});
   const [descripcion, setDescripcion] = useState("");
+
+  //function that search more information and display modal
   const handleModal = async (prop) => {
     setInfomodal(prop);
     if (prop.isbn) {
@@ -124,9 +132,15 @@ function Icons() {
           response = response.data;
 
           if (response["ISBN:" + prop.isbn[0]].details.description) {
-            setDescripcion(
-              response["ISBN:" + prop.isbn[0]].details.description
-            );
+            if (response["ISBN:" + prop.isbn[0]].details.description.value) {
+              setDescripcion(
+                response["ISBN:" + prop.isbn[0]].details.description.value
+              );
+            } else if (response["ISBN:" + prop.isbn[0]].details.description) {
+              setDescripcion(
+                response["ISBN:" + prop.isbn[0]].details.description
+              );
+            }
           } else {
             setDescripcion("No hay descripcion");
           }
@@ -137,6 +151,48 @@ function Icons() {
     }
 
     setModal(!modal);
+  };
+
+  //function that get values of modal and placed in db internal
+  const passOutInt = async () => {
+    const urlInt = "http://localhost:4000/api/books/";
+    const body = {
+      isbn: infoModal.isbn ? infoModal.isbn[0] : "no hay isbn",
+      title: infoModal.title ? infoModal.title : "error",
+      subtitle: infoModal.language ? infoModal.language : ["no info"],
+      autor: infoModal.author_name ? infoModal.author_name : ["No hay autor"],
+      category: infoModal.subject
+        ? [infoModal.subject[0]]
+        : ["no hay categoria"],
+      publicationsDate: infoModal.publish_date
+        ? [infoModal.publish_date[0]]
+        : ["No hay fecha"],
+      editor: infoModal.publisher_facet
+        ? [infoModal.publisher_facet[0]]
+        : ["no hay info editor"],
+      description: descripcion,
+      image:
+        "http://covers.openlibrary.org/b/isbn/" + infoModal.isbn[0] + ".jpg",
+    };
+    try {
+      const peticionGuardado = await axios({
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-access-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYTliZjU2ZDZhYjhlOGEzYTI3NTNlMyIsImlhdCI6MTYzODczNzg3NiwiZXhwIjoxNjM4ODI0Mjc2fQ.Fvu-DitH251KHfvIYprka_6pXH7omDpWmULVSrntnsY",
+        },
+        data: JSON.stringify(body), // <---- This step it is important
+        url: urlInt,
+      }).then((response) => {
+        const notify = () =>
+          toast("El libro fue agregado a la base interna correctamente");
+        notify();
+        setModal(false);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -334,7 +390,7 @@ function Icons() {
               )}
               <br />
               <h4>Descripcion</h4>
-              {descripcion}
+              {descripcion ? descripcion : "no hay"}
               <br />
               <p>
                 Fecha de publicacion:{" "}
@@ -356,7 +412,7 @@ function Icons() {
               </p>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={handleModal}>
+              <Button color="primary" onClick={passOutInt}>
                 Agregar a base de datos
               </Button>{" "}
               <Button color="secondary" onClick={handleModal}>
@@ -365,6 +421,7 @@ function Icons() {
             </ModalFooter>
           </Modal>
         </div>
+        <ToastContainer />
       </div>
     </>
   );
