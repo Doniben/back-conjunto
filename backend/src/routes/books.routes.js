@@ -5,6 +5,7 @@ import * as booksCtrl from "../controllers/books.controller";
 import { authJwt } from "../middlewares";
 
 router.get("/", booksCtrl.getBooks);
+router.post("/titulo", booksCtrl.getBookBytitle);
 
 router.get("/:bookId", booksCtrl.getBookById);
 
@@ -24,6 +25,12 @@ router.delete(
   "/:bookId",
   [authJwt.verifyToken, authJwt.isAdmin],
   booksCtrl.deleteBookById
+);
+
+router.post(
+  "/deleteList",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  booksCtrl.deleteBookByList
 );
 
 export default router;
