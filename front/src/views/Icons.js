@@ -124,9 +124,15 @@ function Icons() {
           response = response.data;
 
           if (response["ISBN:" + prop.isbn[0]].details.description) {
-            setDescripcion(
-              response["ISBN:" + prop.isbn[0]].details.description
-            );
+            if (response["ISBN:" + prop.isbn[0]].details.description.value) {
+              setDescripcion(
+                response["ISBN:" + prop.isbn[0]].details.description.value
+              );
+            } else if (response["ISBN:" + prop.isbn[0]].details.description) {
+              setDescripcion(
+                response["ISBN:" + prop.isbn[0]].details.description
+              );
+            }
           } else {
             setDescripcion("No hay descripcion");
           }
@@ -334,7 +340,7 @@ function Icons() {
               )}
               <br />
               <h4>Descripcion</h4>
-              {descripcion}
+              {descripcion ? descripcion : "no hay"}
               <br />
               <p>
                 Fecha de publicacion:{" "}
