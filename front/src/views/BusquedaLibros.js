@@ -1,20 +1,3 @@
-/*!
-
-=========================================================
-* Now UI Dashboard React - v1.5.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/now-ui-dashboard-react/blob/main/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { useState } from "react";
 
 // reactstrap components
@@ -44,13 +27,13 @@ import { ToastContainer, toast } from "react-toastify";
 import PanelHeader from "components/PanelHeader/PanelHeader.js";
 import axios from "axios";
 
-function Icons() {
+function BusquedaLibros() {
   //search on exernal dataBase
   const [resultadosExternos, setResultadosExternos] = useState([]);
   const [resultadosInternos, setResultadosInternos] = useState([]);
   const [texto, setTexto] = useState("");
 
-  //funtion search and set values resultadosExternos
+  //funtion search and set values internals and external
   const busquedaExterna = async () => {
     if (texto != "") {
       const url_Int = "http://localhost:4000/api/books/titulo";
@@ -160,7 +143,7 @@ function Icons() {
       isbn: infoModal.isbn ? infoModal.isbn[0] : "no hay isbn",
       title: infoModal.title ? infoModal.title : "error",
       subtitle: infoModal.language ? infoModal.language : ["no info"],
-      autor: infoModal.author_name ? infoModal.author_name : ["No hay autor"],
+      autor: infoModal.author_name ? [infoModal.author_name] : ["No hay autor"],
       category: infoModal.subject
         ? [infoModal.subject[0]]
         : ["no hay categoria"],
@@ -390,7 +373,7 @@ function Icons() {
               )}
               <br />
               <h4>Descripcion</h4>
-              {descripcion ? descripcion : "no hay"}
+              {descripcion ? descripcion : "no hay descripcion"}
               <br />
               <p>
                 Fecha de publicacion:{" "}
@@ -427,4 +410,4 @@ function Icons() {
   );
 }
 
-export default Icons;
+export default BusquedaLibros;
