@@ -27,4 +27,10 @@ router.delete(
   booksCtrl.deleteBookById
 );
 
+router.post(
+  "/deleteList",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  booksCtrl.deleteBookByList
+);
+
 export default router;
