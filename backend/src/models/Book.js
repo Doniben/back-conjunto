@@ -5,16 +5,16 @@ const bookSchema = new Schema(
     idbn: String,
     title: String,
     subtitle: String,
-    autor: String,
-    category: String,
-    publicationDate: String,
-    editor: String,
+    autor: Array,
+    category: Array,
+    publicationDate: Number,
+    editor: Array,
     description: String,
     image: String,
   },
   {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
   }
 );
 
