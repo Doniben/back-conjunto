@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 // reactstrap components
 import {
   Button,
@@ -53,7 +52,7 @@ function BusquedaLibros() {
         console.log(error);
       }
 
-      const url_Ext = "http://openlibrary.org/search.json?q=";
+      const url_Ext = "https://openlibrary.org/search.json?q=";
       const uri_Ext = url_Ext + texto;
 
       console.log(texto);
@@ -308,9 +307,9 @@ function BusquedaLibros() {
                         className="font-icon-list"
                         key={key}
                       >
-                        <div className="font-icon-detail">
+                        <div className="font-icon-detail moditify">
                           {/*Function handler empty field isbn */}
-                          <p>Fuente externa</p>
+                          <p style={{color:"black"}}>Fuente externa</p>
                           <br />
                           {prop.isbn ? (
                             <img
@@ -322,23 +321,23 @@ function BusquedaLibros() {
                               height={"150px"}
                             />
                           ) : (
-                            <p>"No image"</p>
+                            <p style={{color:"black"}}>"No image"</p>
                           )}
-                          <p>titulo: {prop.title}</p>
-                          <p>
+                          <p style={{color:"black"}}>titulo: {prop.title}</p>
+                          <p style={{color:"black"}}>
                             nombre/s autore/s:{" "}
                             {prop.author_name
                               ? prop.author_name + " "
                               : "anonimo"}
                           </p>
-                          <p>
+                          <p style={{color:"black"}}>
                             fecha de publicacion:{" "}
                             {prop.publish_date
                               ? prop.publish_date[0] + " "
                               : "No hay fecha"}
                           </p>
                           <Button
-                            color="danger"
+                            color="info"
                             onClick={() => {
                               handleModal(prop);
                             }}
