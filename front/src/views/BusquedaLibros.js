@@ -16,8 +16,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  ButtonGroup,
-  Form,
 } from "reactstrap";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -30,47 +28,24 @@ function BusquedaLibros() {
   //search on exernal dataBase
   const [resultadosExternos, setResultadosExternos] = useState([]);
   const [resultadosInternos, setResultadosInternos] = useState([]);
-  const [texto, setTexto] = useState("");
 
-  //funtion search and set values internals and external
-  const busquedaExterna = async () => {
-    if (texto != "") {
-      const url_Int = "https://api-books-tp.herokuapp.com/api/books/titulo";
-      const body = { title: texto };
+  const [mainText, setMainText] = useState("");
+  const [Autor, setAutor] = useState("");
+  const [Category, setCategory] = useState("");
+  const [PublishDate, setPublishDate] = useState("");
 
-      try {
-        const dataInterna = await axios({
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          data: JSON.stringify(body), // <---- This step it is important
-          url: url_Int,
-        }).then((response) => {
-          setResultadosInternos(response.data);
-          console.log(response.data);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-
-      const url_Ext = "https://openlibrary.org/search.json?q=";
-      const uri_Ext = url_Ext + texto;
-
-      console.log(texto);
-      try {
-        const data = await axios.get(uri_Ext).then((response) => {
-          response = response.data;
-          console.log(response);
-          setResultadosExternos(response.docs);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
+  //handlers values fields filters
+  const handleTitleOrIsbnInput = ({ target }) => {
+    setMainText(target.value);
   };
-
-  //handler value input text of input search
-  const handleInpuntChange = ({ target }) => {
-    setTexto(target.value);
+  const handleAutorInput = ({ target }) => {
+    setAutor(target.value);
+  };
+  const handleCategoryInput = ({ target }) => {
+    setCategory(target.value);
+  };
+  const handlePublishDateInput = ({ target }) => {
+    setPublishDate(target.value);
   };
 
   //hooks for control fields filters
@@ -94,6 +69,57 @@ function BusquedaLibros() {
 
   const toggle = () => {
     titulo();
+  };
+
+  //funtion search and set values internals and external
+  const busquedaGeneral = async () => {
+    //prevent open filters when search
+    setIsOpen(false);
+    setIsOpenAutor(false);
+    setIsCategoria(false);
+    setIsFecha(false);
+
+    //Request internal DB
+    const url_Int = "https://api-books-tp.herokuapp.com/api/books/titulo"; //URI server
+    let body = {};
+    if (mainText != "") {
+      if (field_isbn) {
+        body = { isbn: mainText };
+      } else {
+        if (Autor != "") body.autor = Autor;
+        if (Category != "") body.category = Category;
+        if (PublishDate != "") body.publicationDate = PublishDate;
+      }
+      try {
+        const dataInterna = await axios({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          data: JSON.stringify(body), // <---- This step it is important
+          url: url_Int,
+        }).then((response) => {
+          setResultadosInternos(response.data);
+          console.log(response.data);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
+      //Request external DB
+      const url_Ext = "https://openlibrary.org/search.json?q=";
+      const uri_Ext = url_Ext + mainText;
+
+      console.log(mainText);
+
+      try {
+        const data = await axios.get(uri_Ext).then((response) => {
+          response = response.data;
+          console.log(response);
+          setResultadosExternos(response.docs);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   //hooks for control modal component
@@ -177,6 +203,13 @@ function BusquedaLibros() {
     }
   };
 
+  //hooks of filter
+  const [field_isbn, setField_isbn] = useState(false);
+  const handleIsbn = () => {
+    titulo();
+    setField_isbn(!field_isbn);
+  };
+
   return (
     <>
       <PanelHeader size="sm" />
@@ -187,12 +220,16 @@ function BusquedaLibros() {
               <CardHeader>
                 <InputGroup className="no-border">
                   <Input
-                    placeholder="Search..."
-                    value={texto}
-                    onChange={handleInpuntChange}
+                    placeholder={
+                      field_isbn
+                        ? "Buscar por numero ISBN"
+                        : "Buscar por titulo"
+                    }
+                    value={mainText}
+                    onChange={handleTitleOrIsbnInput}
                   />
                   <InputGroupAddon addonType="append">
-                    <InputGroupText onClick={busquedaExterna}>
+                    <InputGroupText onClick={busquedaGeneral}>
                       <a>
                         <i className="now-ui-icons ui-1_zoom-bold" />
                       </a>
@@ -210,11 +247,18 @@ function BusquedaLibros() {
                   <Collapse isOpen={isOpen}>
                     <Card>
                       <CardBody>
-                        <Button>idbn</Button>
-                        <Button onClick={openAutor}>Autor</Button>
-                        <Button onClick={titulo}>Titulo</Button>
-                        <Button onClick={openCategoria}>Categoria</Button>
-                        <Button onClick={openFecha}>Fecha de publicion</Button>
+                        {field_isbn ? (
+                          <Button onClick={handleIsbn}>Titulo</Button>
+                        ) : (
+                          <div>
+                            <Button onClick={handleIsbn}>ISBN</Button>
+                            <Button onClick={openAutor}>Autor</Button>
+                            <Button onClick={openCategoria}>Categoria</Button>
+                            <Button onClick={openFecha}>
+                              Fecha de publicion
+                            </Button>
+                          </div>
+                        )}
                       </CardBody>
                     </Card>
                   </Collapse>
@@ -224,7 +268,7 @@ function BusquedaLibros() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input value={Autor} onChange={handleAutorInput} />
                       </InputGroup>
                       <p>Escriba el autor</p>
                     </CardBody>
@@ -235,7 +279,10 @@ function BusquedaLibros() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input
+                          value={Category}
+                          onChange={handleCategoryInput}
+                        />
                       </InputGroup>
                       <p>Escriba categoria</p>
                     </CardBody>
@@ -246,7 +293,10 @@ function BusquedaLibros() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input
+                          value={PublishDate}
+                          onChange={handlePublishDateInput}
+                        />
                       </InputGroup>
                       <p>Escriba la fecha</p>
                     </CardBody>
@@ -309,7 +359,7 @@ function BusquedaLibros() {
                       >
                         <div className="font-icon-detail moditify">
                           {/*Function handler empty field isbn */}
-                          <p style={{color:"black"}}>Fuente externa</p>
+                          <p style={{ color: "black" }}>Fuente externa</p>
                           <br />
                           {prop.isbn ? (
                             <img
@@ -321,16 +371,16 @@ function BusquedaLibros() {
                               height={"150px"}
                             />
                           ) : (
-                            <p style={{color:"black"}}>"No image"</p>
+                            <p style={{ color: "black" }}>"No image"</p>
                           )}
-                          <p style={{color:"black"}}>titulo: {prop.title}</p>
-                          <p style={{color:"black"}}>
+                          <p style={{ color: "black" }}>titulo: {prop.title}</p>
+                          <p style={{ color: "black" }}>
                             nombre/s autore/s:{" "}
                             {prop.author_name
                               ? prop.author_name + " "
                               : "anonimo"}
                           </p>
-                          <p style={{color:"black"}}>
+                          <p style={{ color: "black" }}>
                             fecha de publicacion:{" "}
                             {prop.publish_date
                               ? prop.publish_date[0] + " "
