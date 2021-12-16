@@ -58,6 +58,12 @@ function BusquedaLibros() {
   const [isCategoria, setIsCategoria] = useState(false);
   const openCategoria = () => setIsCategoria(!isCategoria);
 
+  const [field_isbn, setField_isbn] = useState(false);
+  const handleIsbn = () => {
+    titulo();
+    setField_isbn(!field_isbn);
+  };
+
   const [isOpen, setIsOpen] = useState(false);
 
   const titulo = () => {
@@ -168,11 +174,9 @@ function BusquedaLibros() {
       isbn: infoModal.isbn ? infoModal.isbn[0] : "no hay isbn",
       title: infoModal.title ? infoModal.title : "error",
       subtitle: infoModal.language ? infoModal.language : ["no info"],
-      autor: infoModal.author_name ? [infoModal.author_name] : ["No hay autor"],
-      category: infoModal.subject
-        ? [infoModal.subject[0]]
-        : ["no hay categoria"],
-      publicationsDate: infoModal.publish_date
+      autor: infoModal.author_name ? infoModal.author_name : ["No hay autor"],
+      category: infoModal.subject ? [infoModal.subject] : ["no hay categoria"],
+      publicationDate: infoModal.publish_date
         ? [infoModal.publish_date[0]]
         : ["No hay fecha"],
       editor: infoModal.publisher_facet
@@ -188,7 +192,7 @@ function BusquedaLibros() {
         headers: {
           "content-type": "application/json",
           "x-access-token":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYTliZjU2ZDZhYjhlOGEzYTI3NTNlMyIsImlhdCI6MTYzODczNzg3NiwiZXhwIjoxNjM4ODI0Mjc2fQ.Fvu-DitH251KHfvIYprka_6pXH7omDpWmULVSrntnsY",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYjliY2Y4NDc3ZTQxMTg0Y2QyYTRmYyIsImlhdCI6MTYzOTU3Njc3NywiZXhwIjoxNjM5NjYzMTc3fQ.2xdvkQGlZFRSP06bAp_NwB_FOoHEw9VKaADD-osKAoY",
         },
         data: JSON.stringify(body), // <---- This step it is important
         url: urlInt,
@@ -201,13 +205,6 @@ function BusquedaLibros() {
     } catch (error) {
       console.log(error);
     }
-  };
-
-  //hooks of filter
-  const [field_isbn, setField_isbn] = useState(false);
-  const handleIsbn = () => {
-    titulo();
-    setField_isbn(!field_isbn);
   };
 
   return (
@@ -425,6 +422,10 @@ function BusquedaLibros() {
               {descripcion ? descripcion : "no hay descripcion"}
               <br />
               <p>
+                Autor:{" "}
+                {infoModal.author_name ? infoModal.author_name : "No hay autor"}
+              </p>
+              <p>
                 Fecha de publicacion:{" "}
                 {infoModal.publish_date
                   ? infoModal.publish_date[0]
@@ -437,10 +438,8 @@ function BusquedaLibros() {
                   : "No hay registro de editorial"}
               </p>
               <p>
-                Genero:{" "}
-                {infoModal.subject
-                  ? infoModal.subject[0]
-                  : "No hay registro de editorial"}
+                categorias:{" "}
+                {infoModal.subject ? infoModal.subject[0] : "No hay categorias"}
               </p>
             </ModalBody>
             <ModalFooter>
