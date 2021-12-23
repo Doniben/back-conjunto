@@ -132,13 +132,7 @@ export const getBookBytitle = async (req, res) => {
             if (titulo > 0) resultado.push(titulo);
 
             //response based results
-            if (atributo == controlador[controlador.length - 1]) {
-              if (resultado.length > 0) {
-                res.status(200).json(resultado);
-              } else {
-                res.status(200).json({ respusta: "no hay resultados" });
-              }
-            }
+            res.status(200).json(resultado);
           });
         }
       })
