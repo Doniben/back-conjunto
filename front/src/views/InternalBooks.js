@@ -138,13 +138,6 @@ function InternalBooks() {
   //hooks for control modal component
   const [modal, setModal] = useState(false);
   const [infoModal, setInfomodal] = useState({});
-  const [descripcion, setDescripcion] = useState("");
-
-  //function that search more information and display modal
-  const handleModal = async (prop) => {
-    setInfomodal(prop);
-    setModal(!modal);
-  };
 
   //function delete book
   const deletebook = async () => {
@@ -166,6 +159,91 @@ function InternalBooks() {
     } catch (error) {
       console.log(error);
       alert("someThing was happened");
+    }
+  };
+
+  //hook for edition mode
+
+  const [Edition_title, setEdition_title] = useState("");
+  const [Edition_description, setEdition_description] = useState("");
+  const [Edition_autor, setEdition_autor] = useState("");
+  const [Edition_publish_date, setEdition_publish_date] = useState("");
+  const [Edition_editorial, setEdition_editorial] = useState("");
+  const [Edition_categorias, setEdition_categorias] = useState("");
+
+  const handle_edit_title = ({ target }) => {
+    setEdition_title(target.value);
+  };
+
+  const handle_edit_description = ({ target }) => {
+    setEdition_description(target.value);
+  };
+
+  const [Edition_mode, setEdition_mode] = useState(false);
+  const handle_edition_mode = () => {
+    infoModal.title
+      ? setEdition_title(infoModal.title)
+      : setEdition_title("No hay titulo");
+
+    infoModal.description
+      ? setEdition_description(infoModal.description)
+      : setEdition_description("No hay nada");
+
+    infoModal.autor
+      ? setEdition_autor(infoModal.autor)
+      : setEdition_autor("No hay titulo");
+
+    infoModal.publicationDate
+      ? setEdition_publish_date(infoModal.publicationDate)
+      : setEdition_publish_date("No hay fecha");
+
+    infoModal.publicationDate
+      ? setEdition_editorial(infoModal.editor)
+      : setEdition_editorial("No hay editor");
+
+    infoModal.publicationDate
+      ? setEdition_categorias(infoModal.category)
+      : setEdition_categorias("No hay categorias");
+
+    setEdition_mode(!Edition_mode);
+  };
+
+  //function that search more information and display modal
+  const handleModal = async (prop) => {
+    setEdition_mode(false);
+    setInfomodal(prop);
+    setModal(!modal);
+  };
+
+  const guardado = async () => {
+    const urlInt = "http://localhost:4000/api/books/";
+    let body = {
+      title: Edition_title,
+      description: Edition_description,
+      autor: Edition_autor,
+      editor: Edition_editorial,
+      publicationDate: Edition_publish_date,
+      category: Edition_categorias,
+    };
+    const tokenAccess =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYTliZjU2ZDZhYjhlOGEzYTI3NTNlMyIsImlhdCI6MTY0MDI2MzIwNiwiZXhwIjoxNjQwMzQ5NjA2fQ.GLUilPihwoNg6VrVKA5x77TPnvfGPqjuk501dRTb3nU";
+    try {
+      const peticion_de_actualizcion = await axios({
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+          "x-access-token": tokenAccess,
+        },
+        data: JSON.stringify(body), // <---- This step it is important
+        url: urlInt + "/" + infoModal._id,
+      }).then((response) => {
+        const notify = () => toast("El libro fue actulizado correctamente");
+        notify();
+        setModal(false);
+        busquedaInterna();
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -275,7 +353,7 @@ function InternalBooks() {
               </CardHeader>
               <CardBody className="all-icons">
                 <Row>
-                  {resultadosInternos[0] ? (
+                  {resultadosInternos ? (
                     resultadosInternos.map((prop, key) => {
                       return (
                         <Col
@@ -298,12 +376,12 @@ function InternalBooks() {
                             <p>titulo: {prop.title}</p>
                             <p>
                               nombre/s autore/s:{" "}
-                              {prop.autor ? prop.autor + " " : "anonimo"}
+                              {prop.autor ? prop.autor[0] : "anonimo"}
                             </p>
                             <p>
                               fecha de publicacion:{" "}
                               {prop.publicationDate
-                                ? prop.publicationDate + " "
+                                ? prop.publicationDate[0]
                                 : "No hay fecha"}
                             </p>
                             <Button
@@ -329,7 +407,11 @@ function InternalBooks() {
 
         <div>
           <Modal isOpen={modal} toggle={handleModal}>
-            <ModalHeader toggle={handleModal}>{infoModal.title}</ModalHeader>
+            {Edition_mode ? (
+              <Input value={Edition_title} onChange={handle_edit_title} />
+            ) : (
+              <ModalHeader toggle={handleModal}>{infoModal.title}</ModalHeader>
+            )}
             <ModalBody>
               {infoModal.image ? (
                 <img src={infoModal.image} />
@@ -338,41 +420,95 @@ function InternalBooks() {
               )}
               <br />
               <h4>Descripcion</h4>
-              {infoModal.description
-                ? infoModal.description
-                : "no hay descripcion"}
+              {Edition_mode ? (
+                <Input
+                  type="textarea"
+                  value={Edition_description}
+                  onChange={handle_edit_description}
+                />
+              ) : infoModal.description ? (
+                infoModal.description
+              ) : (
+                "no hay descripcion alguna"
+              )}
               <br />
               <br />
+
               <p>
                 Autor :{" "}
-                {infoModal.autor ? infoModal.autor + " " : "No hay autor"}
+                {Edition_mode ? (
+                  <Input
+                    type="textarea"
+                    value={Edition_autor}
+                    onChange={handleAutorInput}
+                  />
+                ) : infoModal.autor ? (
+                  infoModal.autor + " "
+                ) : (
+                  "No hay autor"
+                )}
               </p>
+
               <p>
                 Fecha de publicacion:{" "}
-                {infoModal.publicationDate
-                  ? infoModal.publicationDate[0]
-                  : "No hay fecha de publicacion"}
+                {Edition_mode ? (
+                  <Input
+                    type="textarea"
+                    value={Edition_publish_date}
+                    onChange={handleAutorInput}
+                  />
+                ) : infoModal.publicationDate ? (
+                  infoModal.publicationDate[0]
+                ) : (
+                  "No hay fecha de publicacion"
+                )}
               </p>
+
               <p>
                 Editorial:{" "}
-                {infoModal.editor
-                  ? infoModal.editor[0]
-                  : "No hay registro de editorial"}
+                {Edition_mode ? (
+                  <Input
+                    type="textarea"
+                    value={Edition_editorial}
+                    onChange={handleAutorInput}
+                  />
+                ) : infoModal.editor ? (
+                  infoModal.editor[0]
+                ) : (
+                  "No hay registro de editorial"
+                )}
               </p>
+
               <p>
                 categorias:{" "}
-                {infoModal.category
-                  ? infoModal.category + " "
-                  : "No hay categorias"}
+                {Edition_mode ? (
+                  <Input
+                    type="textarea"
+                    value={Edition_categorias}
+                    onChange={handleAutorInput}
+                  />
+                ) : infoModal.category ? (
+                  infoModal.category + " "
+                ) : (
+                  "No hay categorias"
+                )}
               </p>
             </ModalBody>
+
             <ModalFooter>
-              <Button color="danger" onClick={deletebook}>
-                Eliminar de base de datos
-              </Button>{" "}
-              <Button color="info" onClick={handleModal}>
-                Editar
+              {Edition_mode ? (
+                <Button color="success" onClick={guardado}>
+                  guardar
+                </Button>
+              ) : (
+                ""
+              )}
+              <Button color="info" onClick={handle_edition_mode}>
+                {Edition_mode ? "cerrar edicion" : "Editar"}
               </Button>
+              <Button color="danger" onClick={deletebook}>
+                Eliminar
+              </Button>{" "}
               <Button color="secondary" onClick={handleModal}>
                 Cerrar
               </Button>
