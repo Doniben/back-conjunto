@@ -1,0 +1,14 @@
+.contenedor {
+  height: 100vh;
+}
+.campos_texto {
+  width: 300px;
+}
+.left {
+  height: 100%;
+}
+.imagen {
+  height: 100vh;
+  background-image: url("https://i.imgur.com/jHRx5Mb.jpg");
+  background-size: cover;
+}
