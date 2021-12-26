@@ -12,11 +12,8 @@ import {
   DropdownMenu,
   DropdownItem,
   Container,
-  InputGroup,
-  InputGroupText,
-  InputGroupAddon,
-  Input,
 } from "reactstrap";
+import Ingreso from "views/Ingreso";
 
 import routes from "routes.js";
 
@@ -124,16 +121,6 @@ function DemoNavbar(props) {
           <span className="navbar-toggler-bar navbar-kebab" />
         </NavbarToggler>
         <Collapse isOpen={isOpen} navbar className="justify-content-end">
-          <form>
-            <InputGroup className="no-border">
-              <Input placeholder="Search..." />
-              <InputGroupAddon addonType="append">
-                <InputGroupText>
-                  <i className="now-ui-icons ui-1_zoom-bold" />
-                </InputGroupText>
-              </InputGroupAddon>
-            </InputGroup>
-          </form>
           <Nav navbar>
             <NavItem>
               <Link to="#pablo" className="nav-link">
@@ -149,15 +136,16 @@ function DemoNavbar(props) {
               toggle={(e) => dropdownToggle(e)}
             >
               <DropdownToggle caret nav>
-                <i className="now-ui-icons location_world" />
+                <i className="now-ui-icons users_single-02" />
                 <p>
                   <span className="d-lg-none d-md-block">Some Actions</span>
                 </p>
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem tag="a">Action</DropdownItem>
-                <DropdownItem tag="a">Another Action</DropdownItem>
-                <DropdownItem tag="a">Something else here</DropdownItem>
+                <DropdownItem tag="a">
+                  <Link to="/ingreso">Ingresar</Link>
+                </DropdownItem>
+                <DropdownItem tag="a">Registrarse</DropdownItem>
               </DropdownMenu>
             </Dropdown>
             <NavItem>
