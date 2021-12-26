@@ -19,8 +19,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Nav } from "reactstrap";
-import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
-// javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
 
 import logo from "logo-white.svg";
@@ -72,7 +70,7 @@ function Sidebar(props) {
       </div>
       <div className="sidebar-wrapper" ref={sidebar}>
         <Nav>
-        {/* <FixedPlugin
+          {/* <FixedPlugin
         bgColor={backgroundColor}
         handleColorClick={handleColorClick}
       /> */}
