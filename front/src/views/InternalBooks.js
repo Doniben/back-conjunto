@@ -17,8 +17,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  ButtonGroup,
-  Form,
 } from "reactstrap";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -26,7 +24,7 @@ import { ToastContainer, toast } from "react-toastify";
 // core components
 import PanelHeader from "components/PanelHeader/PanelHeader.js";
 import axios from "axios";
-
+``;
 function InternalBooks() {
   //search on internal dataBase
   const [resultadosInternos, setResultadosInternos] = useState([]);
@@ -45,9 +43,24 @@ function InternalBooks() {
     }
   };
 
-  //handler value input text of input search
-  const handleInpuntChange = ({ target }) => {
-    setTexto(target.value);
+  //hooks values
+  const [mainText, setMainText] = useState("");
+  const [Autor, setAutor] = useState("");
+  const [Category, setCategory] = useState("");
+  const [PublishDate, setPublishDate] = useState("");
+
+  //handlers values fields filters
+  const handleTitleOrIsbnInput = ({ target }) => {
+    setMainText(target.value);
+  };
+  const handleAutorInput = ({ target }) => {
+    setAutor(target.value);
+  };
+  const handleCategoryInput = ({ target }) => {
+    setCategory(target.value);
+  };
+  const handlePublishDateInput = ({ target }) => {
+    setPublishDate(target.value);
   };
 
   //hooks for control fields filters
@@ -60,6 +73,12 @@ function InternalBooks() {
   const [isCategoria, setIsCategoria] = useState(false);
   const openCategoria = () => setIsCategoria(!isCategoria);
 
+  const [field_isbn, setField_isbn] = useState(false);
+  const handleIsbn = () => {
+    titulo();
+    setField_isbn(!field_isbn);
+  };
+
   const [isOpen, setIsOpen] = useState(false);
 
   const titulo = () => {
@@ -71,6 +90,49 @@ function InternalBooks() {
 
   const toggle = () => {
     titulo();
+  };
+
+  //funtion Filter books
+  const busquedaGeneral = async () => {
+    //prevent open filters when search
+    setIsOpen(false);
+    setIsOpenAutor(false);
+    setIsCategoria(false);
+    setIsFecha(false);
+
+    //Request internal DB
+    const url_Int = "http://localhost:4000/api/books/titulo"; //URI server
+    let body = {};
+
+    if (
+      (field_isbn == "") &
+      (Autor == "") &
+      (Category == "") &
+      (PublishDate == "")
+    ) {
+      busquedaInterna();
+    } else {
+      if (field_isbn) {
+        body = { isbn: mainText };
+      } else {
+        if (Autor != "") body.autor = Autor;
+        if (Category != "") body.category = Category;
+        if (PublishDate != "") body.publicationDate = PublishDate;
+      }
+      try {
+        const dataInterna = await axios({
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          data: JSON.stringify(body), // <---- This step it is important
+          url: url_Int,
+        }).then((response) => {
+          setResultadosInternos(response.data);
+          console.log(response.data);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   //hooks for control modal component
@@ -92,7 +154,7 @@ function InternalBooks() {
         method: "DELETE",
         headers: {
           "x-access-token":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYTliZjU2ZDZhYjhlOGEzYTI3NTNlMyIsImlhdCI6MTYzODc3OTExMSwiZXhwIjoxNjM4ODY1NTExfQ.WvmGbo1uKHbai6yZsyetwi37pOXF2yw8eeV5r326Fts",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYjliY2Y4NDc3ZTQxMTg0Y2QyYTRmYyIsImlhdCI6MTYzOTU3Njc3NywiZXhwIjoxNjM5NjYzMTc3fQ.2xdvkQGlZFRSP06bAp_NwB_FOoHEw9VKaADD-osKAoY",
         }, // <---- This step it is important
         url: url,
       }).then((response) => {
@@ -120,6 +182,24 @@ function InternalBooks() {
           <Col md={12}>
             <Card>
               <CardHeader>
+                <InputGroup className="no-border">
+                  <Input
+                    placeholder={
+                      field_isbn
+                        ? "Buscar por numero ISBN"
+                        : "Buscar por titulo"
+                    }
+                    value={mainText}
+                    onChange={handleTitleOrIsbnInput}
+                  />
+                  <InputGroupAddon addonType="append">
+                    <InputGroupText onClick={busquedaGeneral}>
+                      <a>
+                        <i className="now-ui-icons ui-1_zoom-bold" />
+                      </a>
+                    </InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
                 <div>
                   <Button
                     color="primary"
@@ -131,11 +211,18 @@ function InternalBooks() {
                   <Collapse isOpen={isOpen}>
                     <Card>
                       <CardBody>
-                        <Button>idbn</Button>
-                        <Button onClick={openAutor}>Autor</Button>
-                        <Button onClick={titulo}>Titulo</Button>
-                        <Button onClick={openCategoria}>Categoria</Button>
-                        <Button onClick={openFecha}>Fecha de publicion</Button>
+                        {field_isbn ? (
+                          <Button onClick={handleIsbn}>Titulo</Button>
+                        ) : (
+                          <div>
+                            <Button onClick={handleIsbn}>ISBN</Button>
+                            <Button onClick={openAutor}>Autor</Button>
+                            <Button onClick={openCategoria}>Categoria</Button>
+                            <Button onClick={openFecha}>
+                              Fecha de publicion
+                            </Button>
+                          </div>
+                        )}
                       </CardBody>
                     </Card>
                   </Collapse>
@@ -145,7 +232,7 @@ function InternalBooks() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input value={Autor} onChange={handleAutorInput} />
                       </InputGroup>
                       <p>Escriba el autor</p>
                     </CardBody>
@@ -156,7 +243,10 @@ function InternalBooks() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input
+                          value={Category}
+                          onChange={handleCategoryInput}
+                        />
                       </InputGroup>
                       <p>Escriba categoria</p>
                     </CardBody>
@@ -167,7 +257,10 @@ function InternalBooks() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input
+                          value={PublishDate}
+                          onChange={handlePublishDateInput}
+                        />
                       </InputGroup>
                       <p>Escriba la fecha</p>
                     </CardBody>
@@ -182,48 +275,52 @@ function InternalBooks() {
               </CardHeader>
               <CardBody className="all-icons">
                 <Row>
-                  {resultadosInternos.map((prop, key) => {
-                    return (
-                      <Col
-                        lg={2}
-                        md={3}
-                        sm={4}
-                        xs={6}
-                        className="font-icon-list"
-                        key={key}
-                      >
-                        <div className="font-icon-detail">
-                          {/*Function handler empty field isbn */}
-                          <p>Fuente Interna</p>
-                          <br />
-                          {prop.image ? (
-                            <img src={prop.image} height={"150px"} />
-                          ) : (
-                            <p>"No image"</p>
-                          )}
-                          <p>titulo: {prop.title}</p>
-                          <p>
-                            nombre/s autore/s:{" "}
-                            {prop.autor ? prop.autor + " " : "anonimo"}
-                          </p>
-                          <p>
-                            fecha de publicacion:{" "}
-                            {prop.publicationDate
-                              ? prop.publicationDate + " "
-                              : "No hay fecha"}
-                          </p>
-                          <Button
-                            color="info"
-                            onClick={() => {
-                              handleModal(prop);
-                            }}
-                          >
-                            Visualizar
-                          </Button>
-                        </div>
-                      </Col>
-                    );
-                  })}
+                  {resultadosInternos[0] ? (
+                    resultadosInternos.map((prop, key) => {
+                      return (
+                        <Col
+                          lg={2}
+                          md={3}
+                          sm={4}
+                          xs={6}
+                          className="font-icon-list"
+                          key={key}
+                        >
+                          <div className="font-icon-detail">
+                            {/*Function handler empty field isbn */}
+                            <p>Fuente Interna</p>
+                            <br />
+                            {prop.image ? (
+                              <img src={prop.image} height={"150px"} />
+                            ) : (
+                              <p>"No image"</p>
+                            )}
+                            <p>titulo: {prop.title}</p>
+                            <p>
+                              nombre/s autore/s:{" "}
+                              {prop.autor ? prop.autor + " " : "anonimo"}
+                            </p>
+                            <p>
+                              fecha de publicacion:{" "}
+                              {prop.publicationDate
+                                ? prop.publicationDate + " "
+                                : "No hay fecha"}
+                            </p>
+                            <Button
+                              color="info"
+                              onClick={() => {
+                                handleModal(prop);
+                              }}
+                            >
+                              Visualizar
+                            </Button>
+                          </div>
+                        </Col>
+                      );
+                    })
+                  ) : (
+                    <h3>NO HAY RESULTADOS</h3>
+                  )}
                 </Row>
               </CardBody>
             </Card>
@@ -241,8 +338,15 @@ function InternalBooks() {
               )}
               <br />
               <h4>Descripcion</h4>
-              {descripcion ? descripcion : "no hay descripcion"}
+              {infoModal.description
+                ? infoModal.description
+                : "no hay descripcion"}
               <br />
+              <br />
+              <p>
+                Autor :{" "}
+                {infoModal.autor ? infoModal.autor + " " : "No hay autor"}
+              </p>
               <p>
                 Fecha de publicacion:{" "}
                 {infoModal.publicationDate
@@ -256,15 +360,15 @@ function InternalBooks() {
                   : "No hay registro de editorial"}
               </p>
               <p>
-                Genero:{" "}
+                categorias:{" "}
                 {infoModal.category
-                  ? infoModal.category[0]
-                  : "No hay registro de editorial"}
+                  ? infoModal.category + " "
+                  : "No hay categorias"}
               </p>
             </ModalBody>
             <ModalFooter>
               <Button color="danger" onClick={deletebook}>
-                Eliminar a base de datos
+                Eliminar de base de datos
               </Button>{" "}
               <Button color="info" onClick={handleModal}>
                 Editar

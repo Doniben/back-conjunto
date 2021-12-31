@@ -19,6 +19,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Nav } from "reactstrap";
+import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
 
@@ -27,6 +28,10 @@ import logo from "logo-white.svg";
 var ps;
 
 function Sidebar(props) {
+  const [backgroundColor, setBackgroundColor] = React.useState("blue");
+  const handleColorClick = (color) => {
+    setBackgroundColor(color);
+  };
   const sidebar = React.useRef();
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
@@ -46,7 +51,7 @@ function Sidebar(props) {
     };
   });
   return (
-    <div className="sidebar" data-color={props.backgroundColor}>
+    <div className="sidebar" data-color={backgroundColor}>
       <div className="logo">
         <a
           href="https://www.creative-tim.com?ref=nudr-sidebar"
@@ -67,6 +72,10 @@ function Sidebar(props) {
       </div>
       <div className="sidebar-wrapper" ref={sidebar}>
         <Nav>
+        {/* <FixedPlugin
+        bgColor={backgroundColor}
+        handleColorClick={handleColorClick}
+      /> */}
           {props.routes.map((prop, key) => {
             if (prop.redirect) return null;
             return (

@@ -43,63 +43,124 @@ export const getBookById = async (req, res) => {
 };
 
 export const getBookBytitle = async (req, res) => {
-  const { title } = req.body;
+  const { title, isbn, subtitle, autor, category, publicationDate, editor } =
+    req.body;
   try {
-    const allBooks = await Book.find().then((response)=>{
-      let resultado = [];
-      let memoria = [];
-      const titulo = response.filter(res => res.title = title);
-      if (titulo) resultado.push(titulo);
-      let minuscula = title.toLowerCase();
-      const fragmentacion = minuscula.split(" ");
-      
-      const filtro = () =>{
-        fragmentacion.map(x => {
-          if (x.length > 3) memoria.push(x);
-        })
-        //filter repeat words
-        memoria = Array.from(new Set(memoria));
+    const allBooks = await Book.find()
+      .then((response) => {
+        let resultado = [];
 
-        //run array search matchs 
-        memoria.map((x) => {
-          let filtrador = new RegExp(x,"ig");
-          const busqueda = response.filter(element => filtrador.test(element.title));
-          console.log(busqueda)
-          if (busqueda.length > 0 ) resultado.push(busqueda);
-        });
+        if (isbn) {
+          const serial = response.filter((res) => res.isbn == isbn);
+          if (serial > 0) resultado.push(serial);
+        } else {
+          let controlador = [];
 
-        resultado = resultado.reduce((ccl, ob) => (ccl.concat(ob)), []);
-        resultado = Array.from(new Set(resultado));
-        
-        if(resultado.length > 0 ) res.status(200).json({resultados:resultado})
-        else res.status(200).json({resultados:"no hay resultados"})
-        
-      }
-      filtro();
-    })  
-    .catch((err) => {console.log(err)});
-    
+          if (title) controlador.push("title");
+          if (subtitle) controlador.push("subtitle");
+          if (autor) controlador.push("autor");
+          if (category) controlador.push("category");
+          if (publicationDate) controlador.push("publicationDate");
+          if (editor) controlador.push("editor");
+
+          let contador = 0;
+
+          //cicle that creator of a filter secuential
+          controlador.forEach((atributo) => {
+            let memoria = [];
+            let minuscula = "";
+
+            contador += 1;
+
+            switch (atributo) {
+              case "title":
+                minuscula = title;
+                break;
+              case "subtitle":
+                minuscula = subtitle;
+                break;
+              case "autor":
+                minuscula = autor;
+                break;
+              case "category":
+                minuscula = category;
+                break;
+              case "publicationDate":
+                minuscula = publicationDate;
+                break;
+              case "editor":
+                minuscula = editor;
+                break;
+            }
+
+            minuscula = minuscula.toLowerCase();
+            const fragmentacion = minuscula.split(" ");
+            fragmentacion.map((x) => {
+              if (x.length > 3) memoria.push(x);
+            });
+            //filter repeat words
+            memoria = Array.from(new Set(memoria));
+
+            const sub_proceso = (x, element, atributo) => {
+              let filtrador = new RegExp(x, "ig");
+              let analisis = filtrador.test(element[atributo]);
+              if (analisis) return analisis;
+            };
+
+            //run array search matchs based count
+            memoria.map((x) => {
+              let busqueda = null;
+              if ((resultado.length == 0) & (contador == 1)) {
+                busqueda = response.filter((element) =>
+                  sub_proceso(x, element, atributo)
+                );
+                resultado.push(busqueda);
+              } else {
+                busqueda = resultado.filter((element) =>
+                  sub_proceso(x, element, atributo)
+                );
+                resultado = [];
+                resultado.push(busqueda);
+              }
+            });
+
+            //unidimencional array and clear repeat elements
+            resultado = resultado.reduce((ccl, ob) => ccl.concat(ob), []);
+            resultado = Array.from(new Set(resultado));
+
+            const titulo = response.filter((res) => res.title == title);
+            if (titulo > 0) resultado.push(titulo);
+
+            //response based results
+            if (atributo == controlador[controlador.length - 1]) {
+              if (resultado.length > 0) {
+                res.status(200).json(resultado);
+              } else {
+                res.status(200).json({ respusta: "no hay resultados" });
+              }
+            }
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   } catch (error) {
     console.log(error);
-    res.status(500).json({erro:"in the request"})
+    res.status(500).json({ erro: "in the request" });
   }
-
-
 };
 
 export const getBooks = async (req, res) => {
- 
-    const books = await Book.find()
-    .then((response)=>{
-      console.log("fine")
+  const books = await Book.find()
+    .then((response) => {
+      console.log("fine");
       res.json(response);
     })
-    .catch(err => {
-      console.log(err)
+    .catch((err) => {
+      console.log(err);
       res.status(500);
-    })
-
-  
+    });
 };
 
 export const updateBookById = async (req, res) => {

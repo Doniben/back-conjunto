@@ -16,8 +16,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  ButtonGroup,
-  Form,
 } from "reactstrap";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -30,14 +28,74 @@ function BusquedaLibros() {
   //search on exernal dataBase
   const [resultadosExternos, setResultadosExternos] = useState([]);
   const [resultadosInternos, setResultadosInternos] = useState([]);
-  const [texto, setTexto] = useState("");
+
+  const [mainText, setMainText] = useState("");
+  const [Autor, setAutor] = useState("");
+  const [Category, setCategory] = useState("");
+  const [PublishDate, setPublishDate] = useState("");
+
+  //handlers values fields filters
+  const handleTitleOrIsbnInput = ({ target }) => {
+    setMainText(target.value);
+  };
+  const handleAutorInput = ({ target }) => {
+    setAutor(target.value);
+  };
+  const handleCategoryInput = ({ target }) => {
+    setCategory(target.value);
+  };
+  const handlePublishDateInput = ({ target }) => {
+    setPublishDate(target.value);
+  };
+
+  //hooks for control fields filters
+  const [isOpenAutor, setIsOpenAutor] = useState(false);
+  const openAutor = () => setIsOpenAutor(!isOpenAutor);
+
+  const [isFecha, setIsFecha] = useState(false);
+  const openFecha = () => setIsFecha(!isFecha);
+
+  const [isCategoria, setIsCategoria] = useState(false);
+  const openCategoria = () => setIsCategoria(!isCategoria);
+
+  const [field_isbn, setField_isbn] = useState(false);
+  const handleIsbn = () => {
+    titulo();
+    setField_isbn(!field_isbn);
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const titulo = () => {
+    setIsOpen(!isOpen);
+    setIsOpenAutor(false);
+    setIsCategoria(false);
+    setIsFecha(false);
+  };
+
+  const toggle = () => {
+    titulo();
+  };
 
   //funtion search and set values internals and external
-  const busquedaExterna = async () => {
-    if (texto != "") {
-      const url_Int = "https://api-books-tp.herokuapp.com/api/books/titulo";
-      const body = { title: texto };
+  const busquedaGeneral = async () => {
+    //prevent open filters when search
+    setIsOpen(false);
+    setIsOpenAutor(false);
+    setIsCategoria(false);
+    setIsFecha(false);
 
+    //Request internal DB
+    const url_Int = "https://api-books-tp.herokuapp.com/api/books/titulo"; //URI server
+    let body = {};
+    if (mainText != "") {
+      if (field_isbn) {
+        body = { isbn: mainText };
+      } else {
+        if (Autor != "") body.autor = Autor;
+        if (Category != "") body.category = Category;
+        if (PublishDate != "") body.publicationDate = PublishDate;
+      }
       try {
         const dataInterna = await axios({
           method: "POST",
@@ -52,10 +110,12 @@ function BusquedaLibros() {
         console.log(error);
       }
 
+      //Request external DB
       const url_Ext = "https://openlibrary.org/search.json?q=";
-      const uri_Ext = url_Ext + texto;
+      const uri_Ext = url_Ext + mainText;
 
-      console.log(texto);
+      console.log(mainText);
+
       try {
         const data = await axios.get(uri_Ext).then((response) => {
           response = response.data;
@@ -66,34 +126,6 @@ function BusquedaLibros() {
         console.log(error);
       }
     }
-  };
-
-  //handler value input text of input search
-  const handleInpuntChange = ({ target }) => {
-    setTexto(target.value);
-  };
-
-  //hooks for control fields filters
-  const [isOpenAutor, setIsOpenAutor] = useState(false);
-  const openAutor = () => setIsOpenAutor(!isOpenAutor);
-
-  const [isFecha, setIsFecha] = useState(false);
-  const openFecha = () => setIsFecha(!isFecha);
-
-  const [isCategoria, setIsCategoria] = useState(false);
-  const openCategoria = () => setIsCategoria(!isCategoria);
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const titulo = () => {
-    setIsOpen(!isOpen);
-    setIsOpenAutor(false);
-    setIsCategoria(false);
-    setIsFecha(false);
-  };
-
-  const toggle = () => {
-    titulo();
   };
 
   //hooks for control modal component
@@ -142,11 +174,9 @@ function BusquedaLibros() {
       isbn: infoModal.isbn ? infoModal.isbn[0] : "no hay isbn",
       title: infoModal.title ? infoModal.title : "error",
       subtitle: infoModal.language ? infoModal.language : ["no info"],
-      autor: infoModal.author_name ? [infoModal.author_name] : ["No hay autor"],
-      category: infoModal.subject
-        ? [infoModal.subject[0]]
-        : ["no hay categoria"],
-      publicationsDate: infoModal.publish_date
+      autor: infoModal.author_name ? infoModal.author_name : ["No hay autor"],
+      category: infoModal.subject ? [infoModal.subject] : ["no hay categoria"],
+      publicationDate: infoModal.publish_date
         ? [infoModal.publish_date[0]]
         : ["No hay fecha"],
       editor: infoModal.publisher_facet
@@ -162,7 +192,7 @@ function BusquedaLibros() {
         headers: {
           "content-type": "application/json",
           "x-access-token":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYTliZjU2ZDZhYjhlOGEzYTI3NTNlMyIsImlhdCI6MTYzODczNzg3NiwiZXhwIjoxNjM4ODI0Mjc2fQ.Fvu-DitH251KHfvIYprka_6pXH7omDpWmULVSrntnsY",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxYjliY2Y4NDc3ZTQxMTg0Y2QyYTRmYyIsImlhdCI6MTYzOTU3Njc3NywiZXhwIjoxNjM5NjYzMTc3fQ.2xdvkQGlZFRSP06bAp_NwB_FOoHEw9VKaADD-osKAoY",
         },
         data: JSON.stringify(body), // <---- This step it is important
         url: urlInt,
@@ -187,12 +217,16 @@ function BusquedaLibros() {
               <CardHeader>
                 <InputGroup className="no-border">
                   <Input
-                    placeholder="Search..."
-                    value={texto}
-                    onChange={handleInpuntChange}
+                    placeholder={
+                      field_isbn
+                        ? "Buscar por numero ISBN"
+                        : "Buscar por titulo"
+                    }
+                    value={mainText}
+                    onChange={handleTitleOrIsbnInput}
                   />
                   <InputGroupAddon addonType="append">
-                    <InputGroupText onClick={busquedaExterna}>
+                    <InputGroupText onClick={busquedaGeneral}>
                       <a>
                         <i className="now-ui-icons ui-1_zoom-bold" />
                       </a>
@@ -210,11 +244,18 @@ function BusquedaLibros() {
                   <Collapse isOpen={isOpen}>
                     <Card>
                       <CardBody>
-                        <Button>idbn</Button>
-                        <Button onClick={openAutor}>Autor</Button>
-                        <Button onClick={titulo}>Titulo</Button>
-                        <Button onClick={openCategoria}>Categoria</Button>
-                        <Button onClick={openFecha}>Fecha de publicion</Button>
+                        {field_isbn ? (
+                          <Button onClick={handleIsbn}>Titulo</Button>
+                        ) : (
+                          <div>
+                            <Button onClick={handleIsbn}>ISBN</Button>
+                            <Button onClick={openAutor}>Autor</Button>
+                            <Button onClick={openCategoria}>Categoria</Button>
+                            <Button onClick={openFecha}>
+                              Fecha de publicion
+                            </Button>
+                          </div>
+                        )}
                       </CardBody>
                     </Card>
                   </Collapse>
@@ -224,7 +265,7 @@ function BusquedaLibros() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input value={Autor} onChange={handleAutorInput} />
                       </InputGroup>
                       <p>Escriba el autor</p>
                     </CardBody>
@@ -235,7 +276,10 @@ function BusquedaLibros() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input
+                          value={Category}
+                          onChange={handleCategoryInput}
+                        />
                       </InputGroup>
                       <p>Escriba categoria</p>
                     </CardBody>
@@ -246,7 +290,10 @@ function BusquedaLibros() {
                   <Card>
                     <CardBody>
                       <InputGroup>
-                        <Input />
+                        <Input
+                          value={PublishDate}
+                          onChange={handlePublishDateInput}
+                        />
                       </InputGroup>
                       <p>Escriba la fecha</p>
                     </CardBody>
@@ -309,7 +356,7 @@ function BusquedaLibros() {
                       >
                         <div className="font-icon-detail moditify">
                           {/*Function handler empty field isbn */}
-                          <p style={{color:"black"}}>Fuente externa</p>
+                          <p style={{ color: "black" }}>Fuente externa</p>
                           <br />
                           {prop.isbn ? (
                             <img
@@ -321,16 +368,16 @@ function BusquedaLibros() {
                               height={"150px"}
                             />
                           ) : (
-                            <p style={{color:"black"}}>"No image"</p>
+                            <p style={{ color: "black" }}>"No image"</p>
                           )}
-                          <p style={{color:"black"}}>titulo: {prop.title}</p>
-                          <p style={{color:"black"}}>
+                          <p style={{ color: "black" }}>titulo: {prop.title}</p>
+                          <p style={{ color: "black" }}>
                             nombre/s autore/s:{" "}
                             {prop.author_name
                               ? prop.author_name + " "
                               : "anonimo"}
                           </p>
-                          <p style={{color:"black"}}>
+                          <p style={{ color: "black" }}>
                             fecha de publicacion:{" "}
                             {prop.publish_date
                               ? prop.publish_date[0] + " "
@@ -375,6 +422,10 @@ function BusquedaLibros() {
               {descripcion ? descripcion : "no hay descripcion"}
               <br />
               <p>
+                Autor:{" "}
+                {infoModal.author_name ? infoModal.author_name : "No hay autor"}
+              </p>
+              <p>
                 Fecha de publicacion:{" "}
                 {infoModal.publish_date
                   ? infoModal.publish_date[0]
@@ -387,10 +438,8 @@ function BusquedaLibros() {
                   : "No hay registro de editorial"}
               </p>
               <p>
-                Genero:{" "}
-                {infoModal.subject
-                  ? infoModal.subject[0]
-                  : "No hay registro de editorial"}
+                categorias:{" "}
+                {infoModal.subject ? infoModal.subject[0] : "No hay categorias"}
               </p>
             </ModalBody>
             <ModalFooter>
